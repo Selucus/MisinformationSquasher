@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const highlightColorPicker = document.getElementById("highlightColorPicker");
 
     // Get the saved state and highlight color from localStorage
+    /*
     chrome.storage.local.get(["highlightEnabled", "highlightColor"], function (result) {
         const highlightEnabled = result.highlightEnabled || false;
         const highlightColor = result.highlightColor || "#FFFF00"; // Default yellow
@@ -16,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Initialize highlight based on saved state
         toggleHighlight(highlightEnabled, highlightColor);
-    });
+    });*/
 
     // Toggle switch event listener
     highlightSwitch.addEventListener("change", function () {
@@ -29,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.scripting.executeScript({
                     target: { tabId: tab.id },
                     func: toggleHighlight,
-                    args: [highlightEnabled, highlightColorPicker.value]
+                    args: [true, highlightColorPicker.value]
                 });
             } else {
                 console.error("Tab not found or invalid tab ID.");
@@ -48,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.scripting.executeScript({
                     target: { tabId: tab.id },
                     func: toggleHighlight,
-                    args: [highlightSwitch.checked, highlightColor]
+                    args: [true, highlightColor]
                 });
             } else {
                 console.error("Tab not found or invalid tab ID.");
@@ -136,7 +137,7 @@ async function highlightFunction(element, highlightColor) {
     console.log("Highlight color:" + x);
     return x;
 }
-let memo = {};
+const memo = {};
 // Highlight only visible elements based on user-selected color
 async function highlightVisibleElements(highlightColor) {
     const visibleElements = getVisibleElements();
@@ -149,18 +150,19 @@ async function highlightVisibleElements(highlightColor) {
     });*/
     
     for (const element of visibleElements) {
-      if (element.textContent.trim() === "") {
+      const key = element.textContent.replace(/[\n\r\t]+/g, '').trim();
+      if (key === "") {
         continue; // Skip empty elements
       }
-      if (String(element.textContent.trim()) in memo) {
-        element.style.backgroundColor = memo[element.textContent.trim()] // Skip duplicate elements
+      if (key in memo) {
+        element.style.backgroundColor = memo[key] // Skip duplicate elements
       }
       else{
         const color = await highlightFunction(element, highlightColor);
-        console.log(element.textContent + " before");
+        console.log(key + " before");
         element.style.backgroundColor = color || ''; // Apply color or reset if null
-        memo[String(element.textContent.trim())] = color;
-        console.log(element.textContent + " after");
+        memo[key] = color;
+        console.log(key + " after");
         console.log(memo);
       }
       
@@ -172,8 +174,10 @@ async function highlightVisibleElements(highlightColor) {
 // Dummy function for checking "fact" vs. "opinion"
 async function sudoCheck(element) {
   let x =  await check(element.textContent.trim());
-  console.log(x);
+  console.log("JUST CHECKED: " + element.textContent.trim() + " and got " + x);
   return x;
+  
+  return "f";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
