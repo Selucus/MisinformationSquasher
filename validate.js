@@ -6,7 +6,7 @@ async function checkData(data) {
         method: 'POST',               // HTTP method
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                "model": "deepseek-r1:1.5b",
+                "model": "deepseek-r1:8b",
                 "prompt": message,
                 "stream": false
             }),   
@@ -57,6 +57,7 @@ async function checkData(data) {
         console.log("Opinions: " + wordCount["opinion"]);
         console.log("True: " + wordCount["true"]);
         console.log("False: " + wordCount["false"]);
+        console.log(result);
         let o = wordCount["opinion"];
         let t = wordCount["true"];
         let f = wordCount["false"];
@@ -73,3 +74,5 @@ async function checkData(data) {
         return "error";
     });
   }
+
+  check("Spiders have 8 legs. Dogs have 5 legs");
