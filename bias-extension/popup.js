@@ -1,4 +1,4 @@
-alert("Popup script loaded");
+//alert("Popup script loaded");
 document.addEventListener('DOMContentLoaded', function () {
     const highlightSwitch = document.getElementById("highlightSwitch");
     const highlightColorPicker = document.getElementById("highlightColorPicker");
@@ -23,11 +23,11 @@ document.addEventListener('DOMContentLoaded', function () {
       chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         const tab = tabs[0];
         if (tab && tab.id) {
-          alert("Tab ID: " + tab.id);
+          //alert("Tab ID: " + tab.id);
           chrome.scripting.executeScript({
             target: { tabId: tab.id },
             func: toggleHighlight,
-            args: [highlightEnabled, highlightColorPicker.value]
+            args: [highlightEnabled, highlightColorPicker.value, document]
           });
         } else {
           console.error("Tab not found or invalid tab ID.");
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function () {
   
 
   function highlightThe(highlightColor) {
-    alert("highlight running");
+    //alert("highlight running");
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
     let node;
   
@@ -118,11 +118,11 @@ function isVisible(node) {
 
 // Function to toggle highlight based on state
 function toggleHighlight(enabled, highlightColor) {
-    alert("toggleHighlight running");
+    //alert("toggleHighlight running");
     // Remove previous highlights
     // Toggle highlighting based on the state
     if (enabled) {
-        alert("highlighting");
+        //alert("highlighting");
         highlightVisibleElements();
     } else {
         revertContentChanges();
@@ -131,9 +131,16 @@ function toggleHighlight(enabled, highlightColor) {
 
 function getVisibleElements() {
   // Select only the headers (h1-h6), paragraphs (p), and articles (article)
-  const elements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, article');
+
+
+  let curTab = getCurrentTab();
+  if (curTab === undefined) {
+    alert('Error: No active tab found.');
+    return [];
+  }else{
+    const elements = curTab.document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, article');
   const visibleElements = [];
-  alert(elements);
+  //alert(elements);
   // Loop through each selected element
   elements.forEach(element => {
     const rect = element.getBoundingClientRect();
@@ -148,6 +155,9 @@ function getVisibleElements() {
       visibleElements.push(element);
     }
   });
+  
+  
+  }
 
   return visibleElements;
 }
@@ -183,10 +193,17 @@ function highlightVisibleElements() {
 
 function sudoCheck(element) {
   if (element.textContent.trim().length > 5) {
-    alert("This is a fact");
+    //alert("This is a fact");
     return "f"
   } else {
-    alert("This is an opinion");
+    //alert("This is an opinion");
     return "t"
   }
+}
+
+async function getCurrentTab() {
+  let queryOptions = { active: true, lastFocusedWindow: true };
+  // `tab` will either be a `tabs.Tab` instance or `undefined`.
+  let [tab] = await chrome.tabs.query(queryOptions);
+  return tab;
 }
