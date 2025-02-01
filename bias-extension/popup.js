@@ -80,14 +80,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
   
-// Function to remove highlights
-function removeHighlight() {
-    const highlightedElements = document.querySelectorAll(".highlighted");
-    highlightedElements.forEach(element => {
-        const parent = element.parentNode;
-        parent.replaceChild(document.createTextNode(element.textContent), element);
-});
+function revertContentChanges() {
+  const elements = document.querySelectorAll('*');
+  elements.forEach(element => {
+    // Reset text content
+    element.textContent = element.textContent;
+    // Or revert to original HTML if stored
+    // element.innerHTML = originalHTMLContent;  // if you store original content before modifying
+  });
 }
+  
 
 // Function to check if a text node is visible
 function isVisible(node) {
@@ -100,8 +102,68 @@ function toggleHighlight(enabled, highlightColor) {
     // Remove previous highlights
     // Toggle highlighting based on the state
     if (enabled) {
-        highlightThe(highlightColor);
+        highlightVisibleElements;
     } else {
-        removeHighlight();
+        revertContentChanges();
     }
+}
+
+function getVisibleElements() {
+  // Select only the headers (h1-h6), paragraphs (p), and articles (article)
+  const elements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, article');
+  const visibleElements = [];
+
+  // Loop through each selected element
+  elements.forEach(element => {
+    const rect = element.getBoundingClientRect();
+
+    // Check if the element is visible (partially or fully) within the viewport
+    if (
+      rect.top < window.innerHeight && // Element's top is within the viewport
+      rect.bottom > 0 &&               // Element's bottom is within the viewport
+      rect.left < window.innerWidth && // Element's left is within the viewport
+      rect.right > 0                   // Element's right is within the viewport
+    ) {
+      visibleElements.push(element);
+    }
+  });
+
+  return visibleElements;
+}
+
+function highlightFunction(element) {
+  // You can customize this logic to highlight based on different criteria
+  const checked = sudoCheck(element)
+  if (checked == "f") {
+    return 'yellow';  // Highlight H1 headers with yellow
+  } 
+
+  // Return null for elements that shouldn't be highlighted
+  return null;
+}
+
+// Function to highlight or reset the visible elements based on the highlightFunction
+function highlightVisibleElements() {
+  const visibleElements = getVisibleElements();
+
+  visibleElements.forEach(element => {
+    // Get the highlight color from the highlightFunction
+    const highlightColor = highlightFunction(element);
+
+    if (highlightColor) {
+      // If highlightColor is defined, apply the highlight
+      element.style.backgroundColor = highlightColor;
+    } else {
+      // If highlightColor is null, reset the background (or other styles)
+      element.style.backgroundColor = '';  // Remove any previous highlight
+    }
+  });
+}
+
+function sudoCheck(element) {
+  if (element.textContent.trim().length > 5) {
+    return "f"
+  } else {
+    return "t"
+  }
 }
