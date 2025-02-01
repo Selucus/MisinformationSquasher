@@ -1,3 +1,4 @@
+alert("Popup script loaded");
 document.addEventListener('DOMContentLoaded', function () {
     const highlightSwitch = document.getElementById("highlightSwitch");
     const highlightColorPicker = document.getElementById("highlightColorPicker");
@@ -22,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
       chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         const tab = tabs[0];
         if (tab && tab.id) {
+          alert("Tab ID: " + tab.id);
           chrome.scripting.executeScript({
             target: { tabId: tab.id },
             func: toggleHighlight,
@@ -56,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function () {
   
 
   function highlightThe(highlightColor) {
+    alert("highlight running");
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
     let node;
   
@@ -95,6 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   
 function revertContentChanges() {
+  /*
   const elements = document.querySelectorAll('*');
   elements.forEach(element => {
     // Reset text content
@@ -102,6 +106,7 @@ function revertContentChanges() {
     // Or revert to original HTML if stored
     // element.innerHTML = originalHTMLContent;  // if you store original content before modifying
   });
+  */
 }
   
 
@@ -113,10 +118,12 @@ function isVisible(node) {
 
 // Function to toggle highlight based on state
 function toggleHighlight(enabled, highlightColor) {
+    alert("toggleHighlight running");
     // Remove previous highlights
     // Toggle highlighting based on the state
     if (enabled) {
-        highlightVisibleElements;
+        alert("highlighting");
+        highlightVisibleElements();
     } else {
         revertContentChanges();
     }
@@ -126,7 +133,7 @@ function getVisibleElements() {
   // Select only the headers (h1-h6), paragraphs (p), and articles (article)
   const elements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, article');
   const visibleElements = [];
-
+  alert(elements);
   // Loop through each selected element
   elements.forEach(element => {
     const rect = element.getBoundingClientRect();
@@ -147,7 +154,7 @@ function getVisibleElements() {
 
 function highlightFunction(element) {
   // You can customize this logic to highlight based on different criteria
-  const checked = sudoCheck(element)
+  let checked = sudoCheck(element);
   if (checked == "f") {
     return 'yellow';  // Highlight H1 headers with yellow
   } 
@@ -176,8 +183,10 @@ function highlightVisibleElements() {
 
 function sudoCheck(element) {
   if (element.textContent.trim().length > 5) {
+    alert("This is a fact");
     return "f"
   } else {
+    alert("This is an opinion");
     return "t"
   }
 }
