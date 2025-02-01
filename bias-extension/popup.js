@@ -143,14 +143,8 @@ async function highlightVisibleElements(highlightColor) {
       if (element.textContent.trim() === "") {
         continue; // Skip empty elements
       }
-<<<<<<< HEAD
-      if (key in memo) {
-        element.style.backgroundColor = memo[key] // Skip duplicate elements
-        console.log("DUPLICATE: " + key);
-=======
       if (String(element.textContent.trim()) in memo) {
         element.style.backgroundColor = memo[element.textContent.trim()] // Skip duplicate elements
->>>>>>> b54a565f5c905111015e9711d13bcfc5ad43de46
       }
       else{
         const color = await highlightFunction(element, highlightColor);
@@ -172,4 +166,5 @@ async function sudoCheck(element) {
   console.log(x);
   return x;
 }
+
 
