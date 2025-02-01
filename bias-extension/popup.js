@@ -1,5 +1,8 @@
 console.log("Popup script loaded");
 
+let highlightColor = "#FFFF00"; // Default yellow
+
+
 document.addEventListener('DOMContentLoaded', function () {
     const highlightSwitch = document.getElementById("highlightSwitch");
     const highlightColorPicker = document.getElementById("highlightColorPicker");
@@ -66,6 +69,33 @@ function isVisible(element) {
     const style = window.getComputedStyle(element);
     return style.display !== 'none' && style.visibility !== 'hidden';
 }
+function handleInView(entries, observer) {
+  entries.forEach(entry => {
+      if (entry.isIntersecting) {
+          //alert('Element in view:' + entry.target.textContent);
+          chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+            const tab = tabs[0];
+            if (tab && tab.id) {
+                chrome.scripting.executeScript({
+                    target: { tabId: tab.id },
+                    func: toggleHighlight,
+                    args: [true, highlightColorPicker.value]
+                });
+            } else {
+                console.error("Tab not found or invalid tab ID.");
+            }
+        });
+          entry.target.classList.add('visible'); // Add visible class
+          observer.unobserve(entry.target); // Optional: Trigger only once
+      }
+  });
+}
+
+const observer = new IntersectionObserver(handleInView, {
+  root: null, // Default is viewport
+  rootMargin: "0px",
+  threshold: 0.1 // Trigger when 10% of the element is visible
+});
 
 // Toggle highlighting based on the state
 function toggleHighlight(enabled, highlightColor) {
@@ -75,11 +105,25 @@ function toggleHighlight(enabled, highlightColor) {
     } else {
         revertContentChanges();
     }
+
+    
+
+  // Intersection Observer setup
+  
+
+  // Select all elements to observe
+  
 }
 
 // Get only visible headers, paragraphs, and articles
 function getVisibleElements() {
-    const elements = document.querySelectorAll("h1, h2, h3, h4, h5, h6, p, article");
+    const els = document.querySelectorAll("*");
+    console.log(els);
+
+  // Attach observer to each element
+    els.forEach(element => observer.observe(element));
+    const elements = document.querySelectorAll("h1, h2, h3, h4, h5, h6, p, article, em, strong, b, i, u, a, span");
+    
     return Array.from(elements).filter(element => {
         const rect = element.getBoundingClientRect();
         return isVisible(element) && rect.top < window.innerHeight && rect.bottom > 0;
@@ -99,9 +143,18 @@ function highlightVisibleElements(highlightColor) {
         const color = highlightFunction(element, highlightColor);
         element.style.backgroundColor = color || ''; // Apply color or reset if null
     });
+
+    
 }
 
 // Dummy function for checking "fact" vs. "opinion"
 function sudoCheck(element) {
-    return element.textContent.trim().length > 5 ? "f" : "t";
+    check(element.textContent.trim()).then(result => { return result; });
+    //return element.textContent.trim().length > 5 ? "f" : "t";
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Function to handle elements when they come into view
+  
+  
+});
