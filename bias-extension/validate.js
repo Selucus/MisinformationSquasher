@@ -1,12 +1,13 @@
 async function checkData(data) {
   try {
-      let message = "I am going to send you information posted by a user online. This information could be an opinion or it could be a fact or claim about the news that might be true or false. If it is an opinion, I would you like you to just return the word ‘opinion’. It is very important you only return the word ‘opinion’ if it is an opinion. If it is a fact or claim about the news, you need to check if, based on generally available knowledge or news articles from reputable sources, the claim is true or false. If the claim is true, return just the word 'true'. It is very important you return just the word 'true'. If the claim is false, I want you to return a response structured like this: the user said this: <insert what the user said> but this is false because <insert your explanation>. MAKE SURE YOU RESPOND USING THE REQUIREMENTS I HAVE SENT. The information I want you to check is this: " + data;
+      let message = "I am going to send you information posted by a user online. This information could be an opinion or it could be a fact or claim about the news that might be true or false. If it is an opinion, I would you like you to just return the word ‘opinion’. It is very important you only return the word ‘opinion’ if it is an opinion. If it is a fact or claim about the news, you need to check if, based on generally available knowledge or news articles from reputable sources, the claim is true or false. If the claim is true, return just the word 'true'. It is very important you return just the word 'true'. If the claim is false, I want you to return a response structured like this: the user said this: <insert what the user said> but this is false because <insert your explanation>. MAKE SURE YOU RESPOND USING THE REQUIREMENTS I HAVE SENT. The information I want you to check is: " + data;
       
-      const response = await fetch("http://127.0.0.1:11434/api/generate", {
+      const response = await fetch("https://647f-2a0c-5bc0-40-3e28-f6-29b3-dba8-2098.ngrok-free.app/api/generate", {
           method: 'POST',  // HTTP method
-          headers: { 'Content-Type': 'application/json' },
+          headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+          
           body: JSON.stringify({
-              "model": "deepseek-r1:8b",
+              "model": "qwen2:0.5b",
               "prompt": message,
               "stream": false
           }),
