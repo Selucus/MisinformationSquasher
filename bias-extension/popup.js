@@ -59,22 +59,36 @@ document.addEventListener('DOMContentLoaded', function () {
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
     let node;
   
-    while (node = walker.nextNode()) {
-      // Avoid highlighting in non-visible text (e.g., hidden elements)
+    while ((node = walker.nextNode())) {
       if (isVisible(node)) {
         const text = node.nodeValue;
-        const highlightedText = text.replace(/\bthe\b/gi, function (match) {
-          // Wrap the matched word in a span with the selected highlight color
-          return `<span class="highlighted" style="background-color: ${highlightColor};">${match}</span>`;
-        });
+        const regex = /\b(the)\b/gi;
   
-        // If any match was found, split the node and insert the highlighted text
-        if (highlightedText !== text) {
-          const spanWrapper = document.createElement('span');
-          spanWrapper.innerHTML = highlightedText;
+        if (regex.test(text)) {
+          const fragment = document.createDocumentFragment();
+          let lastIndex = 0;
+          regex.lastIndex = 0; // Reset regex index
   
-          // Replace the original text node with the span wrapper containing the highlighted text
-          node.parentNode.replaceChild(spanWrapper, node);
+          text.replace(regex, (match, p1, offset) => {
+            // Add the text before the match
+            fragment.appendChild(document.createTextNode(text.slice(lastIndex, offset)));
+  
+            // Add the highlighted match
+            const span = document.createElement('span');
+            span.className = 'highlighted';
+            span.style.backgroundColor = highlightColor;
+            span.textContent = match;
+            fragment.appendChild(span);
+  
+            lastIndex = offset + match.length;
+            return match; // To satisfy replace, though we're not using this return
+          });
+  
+          // Add any remaining text after the last match
+          fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+  
+          // Replace the original text node with the new fragment
+          node.parentNode.replaceChild(fragment, node);
         }
       }
     }
