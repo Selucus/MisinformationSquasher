@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Highlight The Word "The"</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+      max-width: 250px;
+      margin: 0;
+      background-color: #f9f9f9;
+    }
+    h3 {
+      margin: 0 0 10px;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 34px;
+      height: 20px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 12px;
+      width: 12px;
+      border-radius: 50%;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.4s;
+    }
+    input:checked + .slider {
+      background-color: #4CAF50;
+    }
+    input:checked + .slider:before {
+      transform: translateX(14px);
+    }
+    .color-picker {
+      width: 100%;
+      margin-top: 10px;
+      padding: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <h3>Highlight "The"</h3>
+  
+  <!-- Toggle for highlighting -->
+  <label class="switch">
+    <input type="checkbox" id="highlightSwitch">
+    <span class="slider"></span>
+  </label>
+  <label for="highlightSwitch">Enable Highlight</label>
+  
+  <!-- Color Picker for highlight -->
+  <div>
+    <label for="highlightColorPicker">Select Color:</label>
+    <input type="color" id="highlightColorPicker" class="color-picker">
+  </div>
+  <script src="validate.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
