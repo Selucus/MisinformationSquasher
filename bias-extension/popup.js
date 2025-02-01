@@ -156,6 +156,7 @@ async function highlightVisibleElements(highlightColor) {
       }
       if (key in memo) {
         element.style.backgroundColor = memo[key] // Skip duplicate elements
+        console.log("DUPLICATE: " + key);
       }
       else{
         const color = await highlightFunction(element, highlightColor);
@@ -180,8 +181,3 @@ async function sudoCheck(element) {
   return "f";
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  // Function to handle elements when they come into view
-  
-  
-});

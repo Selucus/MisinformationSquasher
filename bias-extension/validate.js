@@ -7,7 +7,7 @@ async function checkData(data) {
           headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
           
           body: JSON.stringify({
-              "model": "qwen2:0.5b",
+              "model": "deepseek-r1:1.5b",
               "prompt": message,
               "stream": false
           }),
