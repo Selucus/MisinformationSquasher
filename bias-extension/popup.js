@@ -148,9 +148,8 @@ function highlightVisibleElements(highlightColor) {
 }
 
 // Dummy function for checking "fact" vs. "opinion"
-function sudoCheck(element) {
-    check(element.textContent.trim()).then(result => { return result; });
-    //return element.textContent.trim().length > 5 ? "f" : "t";
+async function sudoCheck(element) {
+  return await check(element.textContent.trim());
 }
 
 document.addEventListener("DOMContentLoaded", () => {
