@@ -2,7 +2,6 @@ console.log("Popup script loaded");
 
 let highlightColor = "#FFFF00"; // Default yellow
 
-
 document.addEventListener('DOMContentLoaded', function () {
     const highlightSwitch = document.getElementById("highlightSwitch");
     const highlightColorPicker = document.getElementById("highlightColorPicker");
@@ -69,10 +68,10 @@ function isVisible(element) {
     const style = window.getComputedStyle(element);
     return style.display !== 'none' && style.visibility !== 'hidden';
 }
+
 function handleInView(entries, observer) {
   entries.forEach(entry => {
       if (entry.isIntersecting) {
-          //alert('Element in view:' + entry.target.textContent);
           chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
             const tab = tabs[0];
             if (tab && tab.id) {
@@ -84,9 +83,9 @@ function handleInView(entries, observer) {
             } else {
                 console.error("Tab not found or invalid tab ID.");
             }
-        });
+          });
           entry.target.classList.add('visible'); // Add visible class
-          observer.unobserve(entry.target); // Optional: Trigger only once
+          observer.unobserve(entry.target); // Stop observing once processed
       }
   });
 }
@@ -106,19 +105,14 @@ function toggleHighlight(enabled, highlightColor) {
         revertContentChanges();
     }
 
-    
-
   // Intersection Observer setup
-  
-
-  // Select all elements to observe
-  
+  const visibleElements = getVisibleElements();
+  visibleElements.forEach(element => observer.observe(element));
 }
 
 // Get only visible headers, paragraphs, and articles
 function getVisibleElements() {
     const els = document.querySelectorAll("*");
-    console.log(els);
 
   // Attach observer to each element
     els.forEach(element => observer.observe(element));
@@ -136,48 +130,48 @@ async function highlightFunction(element, highlightColor) {
     console.log("Highlight color:" + x);
     return x;
 }
+
 let memo = {};
+
 // Highlight only visible elements based on user-selected color
 async function highlightVisibleElements(highlightColor) {
     const visibleElements = getVisibleElements();
-    /*
-    visibleElements.forEach(element => async function(){
-        const color = await highlightFunction(element, highlightColor);
-        console.log(element.textContent + "before")
-        element.style.backgroundColor = color || ''; // Apply color or reset if null
-        console.log(element.textContent + "after")
-    });*/
     
+    // Iterate over each element
     for (const element of visibleElements) {
-      if (element.textContent.trim() === "") {
-        continue; // Skip empty elements
-      }
-      if (String(element.textContent.trim()) in memo) {
-        element.style.backgroundColor = memo[element.textContent.trim()] // Skip duplicate elements
-      }
-      else{
-        const color = await highlightFunction(element, highlightColor);
-        console.log(element.textContent + " before");
-        element.style.backgroundColor = color || ''; // Apply color or reset if null
-        memo[String(element.textContent.trim())] = color;
-        console.log(element.textContent + " after");
-        console.log(memo);
-      }
-      
-    }
+        // Skip elements with empty text content
+        if (element.textContent.trim() === "") {
+            continue;
+        }
 
-    
+        // Generate a unique key for each element
+        const elementKey = generateElementKey(element);
+        
+        // Check if the element has already been processed (memoized)
+        if (memo[elementKey]) {
+            continue; // Skip already processed element
+        }
+
+        // Highlight the element and store the result in memo
+        const color = await highlightFunction(element, highlightColor);
+        console.log(`Before highlighting: ${element.textContent}`);
+        element.style.backgroundColor = color || ''; // Apply highlight color or reset
+        console.log(`After highlighting: ${element.textContent}`);
+        
+        // Memoize the element by its unique key
+        memo[elementKey] = color;
+
+        console.log(memo); // Log memo to see stored values
+    }
+}
+
+// Generate a unique key for each element
+function generateElementKey(element) {
+    // Use a combination of tag name and position to generate a unique key
+    return `${element.tagName}-${element.offsetTop}-${element.offsetLeft}`;
 }
 
 // Dummy function for checking "fact" vs. "opinion"
 async function sudoCheck(element) {
-  let x =  await check(element.textContent.trim());
-  console.log(x);
-  return x;
+  return await check(element.textContent.trim());
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  // Function to handle elements when they come into view
-  
-  
-});
