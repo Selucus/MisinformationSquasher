@@ -6,7 +6,7 @@ async function checkData(data) {
         method: 'POST',               // HTTP method
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                "model": "deepseek-r1:1.5b",
+                "model": "deepseek-r1:8b",
                 "prompt": message,
                 "stream": false
             }),   
