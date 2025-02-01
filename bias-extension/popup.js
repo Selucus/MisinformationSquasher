@@ -131,25 +131,49 @@ function getVisibleElements() {
 }
 
 // Function to decide highlight color based on criteria
-function highlightFunction(element, highlightColor) {
-    return sudoCheck(element) === "f" ? highlightColor : null;
+async function highlightFunction(element, highlightColor) {
+    let x = await sudoCheck(element) === "f" ? highlightColor : null;
+    console.log("Highlight color:" + x);
+    return x;
 }
-
+let memo = {};
 // Highlight only visible elements based on user-selected color
-function highlightVisibleElements(highlightColor) {
+async function highlightVisibleElements(highlightColor) {
     const visibleElements = getVisibleElements();
-
-    visibleElements.forEach(element => {
-        const color = highlightFunction(element, highlightColor);
+    /*
+    visibleElements.forEach(element => async function(){
+        const color = await highlightFunction(element, highlightColor);
+        console.log(element.textContent + "before")
         element.style.backgroundColor = color || ''; // Apply color or reset if null
-    });
+        console.log(element.textContent + "after")
+    });*/
+    
+    for (const element of visibleElements) {
+      if (element.textContent.trim() === "") {
+        continue; // Skip empty elements
+      }
+      if (String(element.textContent.trim()) in memo) {
+        element.style.backgroundColor = memo[element.textContent.trim()] // Skip duplicate elements
+      }
+      else{
+        const color = await highlightFunction(element, highlightColor);
+        console.log(element.textContent + " before");
+        element.style.backgroundColor = color || ''; // Apply color or reset if null
+        memo[String(element.textContent.trim())] = color;
+        console.log(element.textContent + " after");
+        console.log(memo);
+      }
+      
+    }
 
     
 }
 
 // Dummy function for checking "fact" vs. "opinion"
 async function sudoCheck(element) {
-  return await check(element.textContent.trim());
+  let x =  await check(element.textContent.trim());
+  console.log(x);
+  return x;
 }
 
 document.addEventListener("DOMContentLoaded", () => {

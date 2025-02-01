@@ -7,7 +7,7 @@ async function checkData(data) {
           headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
           
           body: JSON.stringify({
-              "model": "qwen2:0.5b",
+              "model": "wizardlm2:latest",
               "prompt": message,
               "stream": false
           }),
@@ -57,9 +57,7 @@ async function check(data) {
       let result = await checkData(data); // Wait for the response
 
       let wordCount = countWordOccurrences(removeThinkTags(result));
-      console.log("Opinions:", wordCount["opinion"] || 0);
-      console.log("True:", wordCount["true"] || 0);
-      console.log("False:", wordCount["false"] || 0);
+      
 
       let o = wordCount["opinion"] || 0;
       let t = wordCount["true"] || 0;
@@ -68,6 +66,7 @@ async function check(data) {
       if (t > o && t > f) {
           return "t"; // True claim
       } else if (f > o && f > t) {
+          console.log(result);
           return "f"; // False claim
       } else {
           return "o"; // Opinion
