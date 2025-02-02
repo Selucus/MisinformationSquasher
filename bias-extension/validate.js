@@ -1,6 +1,6 @@
 async function checkData(data) {
   try {
-      let message = "I am going to send you information posted by a user online. This information could be an opinion or it could be a fact or claim about the news that might be true or false. If it is an opinion, I would you like you to just return the word ‘opinion’. It is very important you only return the word ‘opinion’ if it is an opinion. If it is a fact or claim about the news, you need to check if, based on generally available knowledge or news articles from reputable sources, the claim is true or false. If the claim is true, return just the word 'true'. It is very important you return just the word 'true'. If the claim is false, I want you to return a response structured like this: the user said this: <insert what the user said> but this is false because <insert your explanation>. MAKE SURE YOU RESPOND USING THE REQUIREMENTS I HAVE SENT. The information I want you to check is: " + data;
+      let message = "I am going to send you information posted by a user online. This information could be a fact that is false, a true fact or just a statement. If it is a false fact, return the word 'false'. Otherwise, if it is a statement or a truthful fact return 'true'. You need to check if the fact is true using generally available knowledge or reputable internet sources. If the claim is false, I want you to return a response structured like this: the user said this: <insert what the user said> but this is false because <insert your explanation>. MAKE SURE YOU RESPOND USING THE REQUIREMENTS I HAVE SENT. The information I want you to check is: " + data;
       
       const response = await fetch("https://647f-2a0c-5bc0-40-3e28-f6-29b3-dba8-2098.ngrok-free.app/api/generate", {
           method: 'POST',  // HTTP method
@@ -58,18 +58,13 @@ async function check(data) {
 
       let wordCount = countWordOccurrences(removeThinkTags(result));
       
-
-      let o = wordCount["opinion"] || 0;
       let t = wordCount["true"] || 0;
       let f = wordCount["false"] || 0;
 
-      if (t > o && t > f) {
+      if (t > f) {
           return "t"; // True claim
-      } else if (f > o && f > t) {
-          console.log(result);
-          return "f"; // False claim
       } else {
-          return "o"; // Opinion
+          return "f"; // Opinion
       }
   } catch (error) {
       console.error(error);
