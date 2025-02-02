@@ -1,4 +1,45 @@
 console.log("Popup script loaded");
+let scrollTimeout;
+
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "getTabInfo") {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      const tab = tabs[0];
+      if (tab && tab.id) {
+        chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: toggleHighlight,
+          args: [true, message.color]
+        });
+      } else {
+        console.error("Tab not found or invalid tab ID.");
+      }
+    });
+  }
+});
+
+
+document.addEventListener('scroll', function () {
+    // Clear the previous timeout, to reset the debounce
+    clearTimeout(scrollTimeout);
+
+    // Set a new timeout to trigger the highlight after the user stops scrolling
+    scrollTimeout = setTimeout(function () {
+        // Call the function to highlight sentences when scrolling has stopped
+        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+            const tab = tabs[0];
+            if (tab && tab.id) {
+                chrome.scripting.executeScript({
+                    target: { tabId: tab.id },
+                    func: toggleHighlight,
+                    args: [highlightEnabled, highlightColor]
+                });
+            } else {
+                console.error("Tab not found or invalid tab ID.");
+                };
+    }, 200); // 200ms debounce delay
+});});
 
 let highlightColor = "#FFFF00"; // Default yellow
 
