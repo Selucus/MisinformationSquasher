@@ -121,7 +121,7 @@ function getVisibleElements() {
 
   // Attach observer to each element
     els.forEach(element => observer.observe(element));
-    const elements = document.querySelectorAll("h1, h2, h3, h4, h5, h6, p, article, em, strong, b, i, u, a, span");
+    const elements = document.querySelectorAll("h1, h2, h3, h4, h5, h6, p, article, em, strong, b, i, u, a, span, div");
     
     return Array.from(elements).filter(element => {
         const rect = element.getBoundingClientRect();
@@ -153,7 +153,7 @@ async function highlightVisibleElements(highlightColor) {
         replaceText(sentence, memo[sentence]);
       }
       else{
-        console.log(sentence + "is a positive statement")
+        console.log(sentence + " is a positive statement")
         const color = await highlightFunction(sentence, highlightColor);
         if (color) {
           replaceText(sentence, color);
@@ -161,9 +161,8 @@ async function highlightVisibleElements(highlightColor) {
         memo[sentence] = color;
         console.log(memo);
       }
-      console.log("Done!")
-      
     }
+    console.log("Done!")
 
     
 }
@@ -204,7 +203,7 @@ function extractSentences() {
   // Helper function to split text into sentences considering edge cases
   function splitTextIntoSentences(text) {
     // Enhanced regular expression to split sentences, with better handling of abbreviations and edge cases
-    const sentenceRegex = /(?<!\b(?:[A-Za-z]{2,}\.|[0-9]+\.[0-9]+|Dr|Mr|Mrs|Ms|Jr|e\.g|i\.e|U\.S|vs|etc)\s)(?<!\s(?:Jr|Sr|II|III|IV|V))([.!?])\s+/g;
+    const sentenceRegex = /(?<!\b(?:[A-Za-z]{2,}\.|[0-9]+\.[0-9]+|Dr|Mr|Mrs|Ms|Jr|e\.g|i\.e|U\.S|vs|etc)\s)(?<!\s(?:Jr|Sr|II|III|IV|V))([·.!?])\s+/g;
 
     // Split the text into sentences, making sure we remove empty or invalid entries
     const sentencesArray = text.split(sentenceRegex).map(sentence => sentence.trim()).filter(Boolean);
@@ -219,7 +218,7 @@ function extractSentences() {
       sentences.push(...splitTextIntoSentences(text));
     }
   });
-
+  console.log("extracted")
   return sentences;
 }
 
@@ -242,13 +241,9 @@ function isPositiveStatement(text) {
   let hasSubjectVerbStructure = doc.has('#Noun #Verb') || doc.has('#Verb #Noun');
 
   // Step 3: Handle negations (e.g., 'not', 'never', 'is not')
-  const negationWords = ["not", "never", "no", "nothing", "none", "can't", "won't", "isn't"];
-  let containsNegation = negationWords.some(neg => doc.has(neg));
+  
+  
 
-  // If there's negation, it's likely not a factual statement
-  if (containsNegation) {
-      return false;
-  }
 
   // Step 4: Return true if both a factual indicator is found and the sentence has the expected structure
   return hasSubjectVerbStructure;
