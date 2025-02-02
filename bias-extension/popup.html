@@ -3,25 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Highlight The Word "The"</title>
+  <title>Bias Basher!</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <h3>Highlight "The"</h3>
+  <h3>Bias Basher</h3>
   
   <!-- Toggle for highlighting -->
   <label class="switch">
     <input type="checkbox" id="highlightSwitch" >
     <span class="slider"></span>
   </label>
-  <label for="highlightSwitch">Enable Highlight</label>
+  <label for="highlightSwitch">View Misinformation</label>
   
   <!-- Color Picker for highlight -->
   <div>
     <label for="highlightColorPicker">Select Color:</label>
-    <input type="color" id="highlightColorPicker" class="color-picker">
+    <input type="color" id="highlightColorPicker" class="color-picker", value="#ffff00">
   </div>
-  <script src="validate.js"></script>
-  <script src="popup.js"></script>
+  
+  <!-- Include external libraries and custom scripts with defer attribute -->
+  <script src="compromise.min.js" defer></script>
+  <script src="validate.js" defer></script>
+  <script src="popup.js" defer></script>
 </body>
 </html>

@@ -6,18 +6,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const highlightSwitch = document.getElementById("highlightSwitch");
     const highlightColorPicker = document.getElementById("highlightColorPicker");
 
-    // Get the saved state and highlight color from localStorage
-    /*
-    chrome.storage.local.get(["highlightEnabled", "highlightColor"], function (result) {
-        const highlightEnabled = result.highlightEnabled || false;
-        const highlightColor = result.highlightColor || "#FFFF00"; // Default yellow
-        highlightSwitch.checked = highlightEnabled;
-        highlightColorPicker.value = highlightColor;
-
-        // Initialize highlight based on saved state
-        toggleHighlight(highlightEnabled, highlightColor);
-    });*/
-
     // Toggle switch event listener
     highlightSwitch.addEventListener("change", function () {
         const highlightEnabled = highlightSwitch.checked;
@@ -29,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.scripting.executeScript({
                     target: { tabId: tab.id },
                     func: toggleHighlight,
-                    args: [true, highlightColorPicker.value]
+                    args: [highlightEnabled, highlightColorPicker.value]
                 });
             } else {
                 console.error("Tab not found or invalid tab ID.");
@@ -39,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Color picker event listener
     highlightColorPicker.addEventListener("input", function () {
-        const highlightColor = highlightColorPicker.value;
+        highlightColor = highlightColorPicker.value;
         chrome.storage.local.set({ highlightColor });
 
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -48,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.scripting.executeScript({
                     target: { tabId: tab.id },
                     func: toggleHighlight,
-                    args: [true, highlightColor]
+                    args: [highlightEnabled, highlightColor]
                 });
             } else {
                 console.error("Tab not found or invalid tab ID.");
@@ -59,9 +47,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Function to remove highlights
 function revertContentChanges() {
-    document.querySelectorAll("h1, h2, h3, h4, h5, h6, p, article").forEach(element => {
-        element.style.backgroundColor = ''; // Reset background
-    });
+  // Select all elements that were previously highlighted (those with a background color applied)
+  const highlightedElements = document.querySelectorAll("span[style*='background-color:']");
+  
+  // Reset the background color for each of them
+  highlightedElements.forEach(element => {
+      element.style.backgroundColor = ''; // Reset background color
+  });
 }
 
 // Function to check if a text node is visible
@@ -72,22 +64,11 @@ function isVisible(element) {
 
 function handleInView(entries, observer) {
   entries.forEach(entry => {
-      if (entry.isIntersecting) {
-          chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-            const tab = tabs[0];
-            if (tab && tab.id) {
-                chrome.scripting.executeScript({
-                    target: { tabId: tab.id },
-                    func: toggleHighlight,
-                    args: [true, highlightColorPicker.value]
-                });
-            } else {
-                console.error("Tab not found or invalid tab ID.");
-            }
-          });
-          entry.target.classList.add('visible'); // Add visible class
-          observer.unobserve(entry.target); // Stop observing once processed
-      }
+    if (entry.isIntersecting) {
+      chrome.runtime.sendMessage({ action: "getTabInfo", color: highlightColor });
+      entry.target.classList.add('visible'); // Add visible class
+      observer.unobserve(entry.target); // Stop observing once processed
+    }
   });
 }
 
@@ -126,8 +107,8 @@ function getVisibleElements() {
 }
 
 // Function to decide highlight color based on criteria
-async function highlightFunction(element, highlightColor) {
-    let x = await sudoCheck(element) === "f" ? highlightColor : null;
+async function highlightFunction(sentence, highlightColor) {
+    let x = await sudoCheck(sentence) === "f" ? highlightColor : null;
     console.log("Highlight color:" + x);
     return x;
 }
@@ -136,35 +117,116 @@ let memo = {};
 
 // Highlight only visible elements based on user-selected color
 async function highlightVisibleElements(highlightColor) {
-    const visibleElements = getVisibleElements();
+    let visibleSentences = extractSentences().filter(sentence => isPositiveStatement(sentence)).map(sentence => sentence.trim());
+    visibleSentences = [...new Set(visibleSentences)]
+    console.log(visibleSentences);
     
     // Iterate over each element
-    for (const element of visibleElements) {
-      if (element.textContent.trim() === "") {
+    for (const sentence of visibleSentences) {
+      if (!sentence) {
         continue; // Skip empty elements
       }
-      if (String(element.textContent.trim()) in memo) {
-        element.style.backgroundColor = memo[element.textContent.trim()] // Skip duplicate elements
+      if (sentence in memo) {
+        replaceText(sentence, memo[sentence]);
       }
       else{
-        const color = await highlightFunction(element, highlightColor);
-        console.log(element.textContent + " before");
-        element.style.backgroundColor = color || ''; // Apply color or reset if null
-        memo[String(element.textContent.trim())] = color;
-        console.log(element.textContent + " after");
+        console.log(sentence + "is a positive statement")
+        const color = await highlightFunction(sentence, highlightColor);
+        if (color) {
+          replaceText(sentence, color);
+        };
+        memo[sentence] = color;
         console.log(memo);
       }
+      console.log("Done!")
       
     }
 
     
 }
 
-// Dummy function for checking "fact" vs. "opinion"
-async function sudoCheck(element) {
-  let x =  await check(element.textContent.trim());
-  console.log(x);
-  return x;
+// Function to replace text with highlighted text
+function replaceText(sentence, color) {
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+  let node;
+  
+  while (node = walker.nextNode()) {
+      if (node.nodeValue.includes(sentence)) {
+          const span = document.createElement("span");
+          span.style.backgroundColor = color;
+          span.textContent = sentence;
+          
+          const parts = node.nodeValue.split(sentence);
+          const fragment = document.createDocumentFragment();
+          
+          fragment.append(parts[0], span, parts[1]);
+          node.parentNode.replaceChild(fragment, node);
+      }
+  }
 }
 
 
+// Dummy function for checking "fact" vs. "opinion"
+async function sudoCheck(text) {
+  return "f";
+}
+
+
+function extractSentences() {
+  let sentences = [];
+
+  // Collect all the paragraphs, headings, and other text-bearing elements (can add more elements if necessary)
+  const elements = getVisibleElements();
+
+  // Helper function to split text into sentences considering edge cases
+  function splitTextIntoSentences(text) {
+    // Enhanced regular expression to split sentences, with better handling of abbreviations and edge cases
+    const sentenceRegex = /(?<!\b(?:[A-Za-z]{2,}\.|[0-9]+\.[0-9]+|Dr|Mr|Mrs|Ms|Jr|e\.g|i\.e|U\.S|vs|etc)\s)(?<!\s(?:Jr|Sr|II|III|IV|V))([.!?])\s+/g;
+
+    // Split the text into sentences, making sure we remove empty or invalid entries
+    const sentencesArray = text.split(sentenceRegex).map(sentence => sentence.trim()).filter(Boolean);
+
+    return sentencesArray;
+  }
+
+  // Extract sentences from elements
+  elements.forEach(elem => {
+    const text = elem.textContent.trim();
+    if (text) {
+      sentences.push(...splitTextIntoSentences(text));
+    }
+  });
+
+  return sentences;
+}
+
+
+function isPositiveStatement(text) {
+  // Convert the text into a Compromise document
+  let doc = nlp(text.toLowerCase());
+
+  // Expanded list of factual indicators to look for in the sentence
+  const factualIndicators = [
+    "study", "research", "survey", "data", "evidence", "confirmed", 
+    "scientists", "experts", "findings", "analysis", "according to", 
+    "reported", "results", "discovered"
+  ];
+
+  // Step 1: Check for factual indicators in the sentence
+  let containsFactualIndicators = factualIndicators.some(word => doc.has(word));
+
+  // Step 2: Check for the structure of the sentence (Noun + Verb or Verb + Noun)
+  let hasSubjectVerbStructure = doc.has('#Noun #Verb') || doc.has('#Verb #Noun');
+
+  // Step 3: Handle negations (e.g., 'not', 'never', 'is not')
+  const negationWords = ["not", "never", "no", "nothing", "none", "can't", "won't", "isn't"];
+  let containsNegation = negationWords.some(neg => doc.has(neg));
+
+  // If there's negation, it's likely not a factual statement
+  if (containsNegation) {
+      return false;
+  }
+
+  // Step 4: Return true if both a factual indicator is found and the sentence has the expected structure
+  return hasSubjectVerbStructure;
+}

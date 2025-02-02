@@ -1,50 +1,152 @@
-/* The switch - default position */
+/* Reset some basic styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Body styling */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f7fa;
+  color: #333;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vh;
+}
+
+/* Heading styling */
+h3 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 40px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Styling for the switch container (centering) */
+.switch-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px; /* Space below the toggle */
+  width: 100%; /* Ensure it spans the available width */
+}
+
+/* Styling for the switch */
 .switch {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 34px;
-  }
-  
-  /* Hide the default checkbox */
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  /* The slider - the part that looks like the switch */
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: 0.4s;
-    border-radius: 34px;
-  }
-  
-  /* The circle inside the slider */
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 26px;
-    width: 26px;
-    border-radius: 50%;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: 0.4s;
-  }
-  
-  /* When the checkbox is checked, move the slider circle */
-  input:checked + .slider {
-    background-color: #2196F3;
-  }
-  
-  input:checked + .slider:before {
-    transform: translateX(26px);
-  }
-  
+  position: relative;
+  display: inline-block;
+  width: 80px; /* Made the switch wider */
+  height: 40px; /* Increased height for a more substantial feel */
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 50px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 32px;
+  width: 32px;
+  border-radius: 50px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #4CAF50;
+}
+
+input:checked + .slider:before {
+  transform: translateX(40px); /* Adjusted transition */
+}
+
+/* Label styling for the switch */
+label[for="highlightSwitch"] {
+  font-size: 1.2rem; /* Slightly larger font */
+  color: #333;
+  margin-left: 15px;
+  font-weight: 500;
+}
+
+/* Color picker container */
+div {
+  margin-top: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px; /* Increased gap for more space */
+}
+
+/* Color Picker Label */
+label {
+  font-size: 1.2rem; /* Slightly larger font */
+  color: #333;
+  font-weight: 500;
+}
+
+/* Style for color picker */
+input[type="color"] {
+  border: none;
+  height: 40px; /* Increased size of color picker */
+  width: 50px; /* Increased width of color picker */
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  transition: all 0.3s ease;
+}
+
+input[type="color"]:focus {
+  outline: none;
+}
+
+/* Custom styling for the popup */
+.popup-container {
+  width: 380px; /* Increased width */
+  height: auto;
+  padding: 40px; /* More padding for spacing */
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1); /* Larger shadow for a more modern feel */
+  text-align: center;
+}
+
+/* Optional additional button styles */
+button {
+  padding: 12px 25px;
+  background-color: #007bff;
+  border: none;
+  color: white;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
