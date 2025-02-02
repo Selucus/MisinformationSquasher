@@ -1,6 +1,6 @@
 async function checkData(data) {
   try {
-      let message = "I am going to send you information posted by a user online. This information could be a fact that is false, a true fact or just a statement. If it is a false fact, return the word 'false'. Otherwise, if it is a statement or a truthful fact return 'true'. You need to check if the fact is true using generally available knowledge or reputable internet sources. If the claim is false, I want you to return a response structured like this: the user said this: <insert what the user said> but this is false because <insert your explanation>. MAKE SURE YOU RESPOND USING THE REQUIREMENTS I HAVE SENT. The information I want you to check is: " + data;
+      let message = "I am going to send you a sentence posted by a user online. This sentence could be a fact that is false, a true fact or just a statement. Use sentiment analysis to judge whether the information is a fact or just a statement. If it is a fact, you need to check if the fact is true or false using generally available knowledge or reputable internet sources. If it is a false fact, return the word 'false'. Otherwise, if it is a statement or a truthful fact return 'true'. If the sentence is a question, return 'true'. If the claim is false, I want you to return a response structured like this: the user said this: <insert what the user said> but this is false because <insert your explanation>. MAKE SURE YOU RESPOND USING THE REQUIREMENTS I HAVE SENT. The information I want you to check is: " + data;
       
       const response = await fetch("https://647f-2a0c-5bc0-40-3e28-f6-29b3-dba8-2098.ngrok-free.app/api/generate", {
           method: 'POST',  // HTTP method
@@ -61,11 +61,14 @@ async function check(data) {
       let t = wordCount["true"] || 0;
       let f = wordCount["false"] || 0;
 
+      console.log(result);
+
       if (t > f) {
           return "t"; // True claim
       } else {
           return "f"; // Opinion
       }
+
   } catch (error) {
       console.error(error);
       return "error";

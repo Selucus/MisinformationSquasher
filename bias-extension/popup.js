@@ -191,7 +191,7 @@ function replaceText(sentence, color) {
 
 // Dummy function for checking "fact" vs. "opinion"
 async function sudoCheck(text) {
-  return "f";
+  return await check(text);
 }
 
 
