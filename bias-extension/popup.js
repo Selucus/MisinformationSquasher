@@ -1,32 +1,20 @@
 console.log("Popup script loaded");
-let scrollTimeout;
 
+let highlightColor = "#FFFF00"; // Default yellow
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "getTabInfo") {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      const tab = tabs[0];
-      if (tab && tab.id) {
-        chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          func: toggleHighlight,
-          args: [true, message.color]
-        });
-      } else {
-        console.error("Tab not found or invalid tab ID.");
-      }
-    });
-  }
-});
+document.addEventListener('DOMContentLoaded', function () {
+    const highlightSwitch = document.getElementById("highlightSwitch");
+    const highlightColorPicker = document.getElementById("highlightColorPicker");
+    // Get the stored highlight state when the popup is opened
+    chrome.storage.local.get(['highlightEnabled', 'highlightColor'], function (data) {
+        const highlightEnabled = data.highlightEnabled !== undefined ? data.highlightEnabled : false;
+        const highlightColor = data.highlightColor || "#FFFF00"; // Default color if not set
 
+        // Set the initial state of the highlight switch and color picker
+        highlightSwitch.checked = highlightEnabled;
+        highlightColorPicker.value = highlightColor;
 
-document.addEventListener('scroll', function () {
-    // Clear the previous timeout, to reset the debounce
-    clearTimeout(scrollTimeout);
-
-    // Set a new timeout to trigger the highlight after the user stops scrolling
-    scrollTimeout = setTimeout(function () {
-        // Call the function to highlight sentences when scrolling has stopped
+        // Apply the highlight settings immediately
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
             const tab = tabs[0];
             if (tab && tab.id) {
@@ -37,15 +25,9 @@ document.addEventListener('scroll', function () {
                 });
             } else {
                 console.error("Tab not found or invalid tab ID.");
-                };
-    }, 200); // 200ms debounce delay
-});});
-
-let highlightColor = "#FFFF00"; // Default yellow
-
-document.addEventListener('DOMContentLoaded', function () {
-    const highlightSwitch = document.getElementById("highlightSwitch");
-    const highlightColorPicker = document.getElementById("highlightColorPicker");
+            }
+        });
+    });
 
     // Toggle switch event listener
     highlightSwitch.addEventListener("change", function () {
